@@ -6,7 +6,7 @@ from .serializers import UserLoginSerializers,UserRegisterSerializers
 
 class UserLoginView(APIView):
     def post(self,request):
-        serializer = UserLoginSerializers(data=request.data)
+        serializer = UserLoginSerializers(data=request.data,context={'request':request})
         if serializer.is_valid():
             serializer.save()
             return Response('user logedin successfully',status=status.HTTP_200_OK)
