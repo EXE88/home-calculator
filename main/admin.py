@@ -4,4 +4,4 @@ from django.contrib.auth.models import User
 
 @admin.register(ProjectInputs)
 class ProjectInputsAdmin(admin.ModelAdmin):
-    list_display = ('id','title','created','user')
+    list_display = ('id','title','created','user','user_id')
