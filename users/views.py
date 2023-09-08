@@ -5,7 +5,9 @@ from rest_framework import status
 from .serializers import UserLoginSerializers,UserRegisterSerializers
 
 class UserLoginView(APIView):
-    pass
+    def post(self,request):
+        pass
 
 class UserRegisterView(APIView):
-    pass
+    def post(self,request):
+        pass
