@@ -10,8 +10,12 @@ class UserLoginView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response('user logedin successfully',status=status.HTTP_200_OK)
-        return Response('invalid data',status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class UserRegisterView(APIView):
     def post(self,request):
-        pass
+        serializer = UserRegisterSerializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('user created successfully',status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
