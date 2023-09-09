@@ -2,14 +2,39 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login
 
+class UserLoginValidateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username','password']
+      
+    username = serializers.CharField(max_length=50,min_length=5,required=True,allow_blank=False)
+    password = serializers.CharField(max_length=50,min_length=8,required=True,allow_blank=False)
+    
+    def validate(self, attrs):
+        request = self.context['request']
+        username = attrs.get("username")
+        password = attrs.get("password")
+        user = authenticate(request,username=username,password=password)
+        if user is not None:
+            return user
+        raise serializers.ValidationError('username or password is wrong')
+
 class UserLoginSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username','password']
-        
+      
     username = serializers.CharField(max_length=50,min_length=5,required=True,allow_blank=False)
     password = serializers.CharField(max_length=50,min_length=8,required=True,allow_blank=False)
-
+    
+    def create(self, validated_data):
+        request = self.context['request']
+        username = validated_data.get("username")
+        password = validated_data.get("password")
+        user = authenticate(request,username=username,password=password)
+        login(request,user)
+        return user
+    
 class UserRegisterValidatePasswordSerializers(serializers.Serializer):
     username = serializers.CharField(max_length=50,min_length=5,required=True,allow_blank=False)
     email = serializers.EmailField(required=True,allow_blank=False)
