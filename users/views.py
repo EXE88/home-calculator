@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserLoginSerializers,UserRegisterSerializers
+from .serializers import UserLoginSerializers,UserRegisterSerializers,UserRegisterValidatePasswordSerializers
 
 class UserLoginView(APIView):
     def post(self,request):
@@ -14,8 +14,9 @@ class UserLoginView(APIView):
 
 class UserRegisterView(APIView):
     def post(self,request):
-        serializer = UserRegisterSerializers(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
+        register_serializer = UserRegisterSerializers(data=request.data)
+        validate_password_serializer = UserRegisterValidatePasswordSerializers(data=request.data)
+        if validate_password_serializer.is_valid() and register_serializer.is_valid():
+            register_serializer.save()
             return Response('user created',status=status.HTTP_200_OK)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        return Response(register_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
