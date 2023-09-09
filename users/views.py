@@ -8,10 +8,14 @@ class UserLoginView(APIView):
     def post(self,request):
         login_serializer = UserLoginSerializers(data=request.data,context={"request":request})
         validate_serializer = UserLoginValidateSerializer(data=request.data,context={"request":request})
-        if validate_serializer.is_valid() and login_serializer.is_valid():
-            login_serializer.save()
-            return Response('you are logedin successfully',status=status.HTTP_200_OK)
-        return Response(login_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        if validate_serializer.is_valid():
+            if login_serializer.is_valid():
+                login_serializer.save()
+                return Response('you are logedin successfully',status=status.HTTP_200_OK)
+            else:
+                return Response(login_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(validate_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class UserRegisterView(APIView):
     def post(self,request):
