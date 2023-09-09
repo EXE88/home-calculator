@@ -5,33 +5,37 @@ from django.contrib.auth import authenticate,login
 class UserLoginValidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username','password']
+        fields = ['email','password']
       
-    username = serializers.CharField(max_length=50,min_length=5,required=True,allow_blank=False)
+    email = serializers.EmailField(required=True,allow_blank=False)
     password = serializers.CharField(max_length=50,min_length=8,required=True,allow_blank=False)
     
     def validate(self, attrs):
         request = self.context['request']
-        username = attrs.get("username")
+        email = attrs.get("email")
         password = attrs.get("password")
-        user = authenticate(request,username=username,password=password)
+        user = User.objects.filter(email=email)
+        username = user[0].username
+        user = authenticate(request=request,username=username,password=password)
         if user is not None:
             return user
-        raise serializers.ValidationError('username or password is wrong')
+        raise serializers.ValidationError('email or password is wrong')
 
 class UserLoginSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username','password']
+        fields = ['email','password']
       
-    username = serializers.CharField(max_length=50,min_length=5,required=True,allow_blank=False)
+    email = serializers.EmailField(required=True,allow_blank=False)
     password = serializers.CharField(max_length=50,min_length=8,required=True,allow_blank=False)
     
     def create(self, validated_data):
         request = self.context['request']
-        username = validated_data.get("username")
+        email = validated_data.get("email")
         password = validated_data.get("password")
-        user = authenticate(request,username=username,password=password)
+        user = User.objects.filter(email=email)
+        username = user[0].username
+        user = authenticate(request=request,username=username,password=password)
         login(request,user)
         return user
     
