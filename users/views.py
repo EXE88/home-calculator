@@ -6,8 +6,16 @@ from .serializers import UserLoginSerializers,UserRegisterSerializers
 
 class UserLoginView(APIView):
     def post(self,request):
-        pass
+        serializer = UserLoginSerializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('user logedin',status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class UserRegisterView(APIView):
     def post(self,request):
-        pass
+        serializer = UserRegisterSerializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response('user created',status=status.HTTP_200_OK)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
