@@ -2,42 +2,46 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login
 
-class UserLoginValidateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['email','password']
-      
-    email = serializers.EmailField(required=True,allow_blank=False)
+class UserLoginValidateSerializer(serializers.Serializer):
+    email_or_username = serializers.CharField(max_length=50,min_length=8,required=True,allow_blank=False)
     password = serializers.CharField(max_length=50,min_length=8,required=True,allow_blank=False)
     
     def validate(self, attrs):
         request = self.context['request']
-        email = attrs.get("email")
+        email_or_username = attrs.get("email_or_username")
         password = attrs.get("password")
-        user = User.objects.filter(email=email)
-        username = user[0].username
-        user = authenticate(request=request,username=username,password=password)
-        if user is not None:
-            return user
-        raise serializers.ValidationError('email or password is wrong')
-
-class UserLoginSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['email','password']
-      
-    email = serializers.EmailField(required=True,allow_blank=False)
+        if '@gmail.com' in email_or_username or '@' in email_or_username and '.com' in email_or_username:
+            user = User.objects.filter(email=email_or_username)
+            try:
+                username = user[0].username
+            except:
+                raise serializers.ValidationError('email or password is wrong')
+            user_auth = authenticate(request=request,username=username,password=password)
+            if user_auth is not None:
+                return user_auth
+            raise serializers.ValidationError('email or password is wrong')
+        user_auth = authenticate(request=request,username=email_or_username,password=password)
+        if user_auth is not None:
+            return user_auth
+        raise serializers.ValidationError('username or password is wrong')
+    
+class UserLoginSerializers(serializers.Serializer):
+    email_or_username = serializers.CharField(max_length=50,min_length=8,required=True,allow_blank=False)
     password = serializers.CharField(max_length=50,min_length=8,required=True,allow_blank=False)
     
     def create(self, validated_data):
         request = self.context['request']
-        email = validated_data.get("email")
+        email_or_username = validated_data.get("email_or_username")
         password = validated_data.get("password")
-        user = User.objects.filter(email=email)
-        username = user[0].username
-        user = authenticate(request=request,username=username,password=password)
-        login(request,user)
-        return user
+        if '@gmail.com' in email_or_username or '@' in email_or_username and '.com' in email_or_username:
+            user = User.objects.filter(email=email_or_username)
+            username = user[0].username
+            user_auth = authenticate(request=request,username=username,password=password)
+            login(request,user_auth)
+            return user_auth
+        user_auth = authenticate(request=request,username=email_or_username,password=password)
+        login(request,user_auth)
+        return user_auth
     
 class UserRegisterValidatePasswordSerializers(serializers.Serializer):
     username = serializers.CharField(max_length=50,min_length=5,required=True,allow_blank=False)
