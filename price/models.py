@@ -1,10 +1,10 @@
 from django.db import models
 
 class Material(models.Model):
-    name = models.CharField()
-    group = models.CharField()
-    brand = models.CharField()
-    unit = models.CharField()
-    price = models.CharField()
-    description = models.CharField()
-    last_price = models.CharField()
+    name = models.CharField(max_length=50)
+    group = models.CharField(max_length=50)
+    brand = models.CharField(max_length=50)
+    unit = models.CharField(max_length=50)
+    price = models.CharField(max_length=50)
+    description = models.CharField(max_length=50)
+    last_price = models.CharField(max_length=50)
