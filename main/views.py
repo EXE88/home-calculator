@@ -6,6 +6,7 @@ from .models import ProjectInputs
 from .serializers import ProjectInputsSerializer,ProjectReviewSerializer
 from rest_framework import permissions
 from price.models import Material
+from .city_choice_options import city_choises
 
 class CreateNewProject(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -44,6 +45,9 @@ class ProjectFullDetails(APIView):
         quantity_of_brick_in_north_and_south_wall_for_all_floors = quantity_of_brick_in_north_and_south_wall_for_one_floor*obj.floor
         quantity_of_brick_in_west_and_east_wall_for_all_floors = quantity_of_brick_in_west_and_east_wall_for_one_floor*obj.floor
         
+        quantity_of_brick_for_ceiling_in_one_floor = ((home_length*100)/brick_length)*((home_width*100)/brick_length)
+        quantity_of_brick_for_ceiling_in_all_floors = quantity_of_brick_for_ceiling_in_one_floor*obj.floor
+        
         all_brick_objects = Material.objects.none()
         all_brick_objects |= Material.objects.filter(name__icontains='آجر')
         list_of_brick_objects = []
@@ -52,19 +56,23 @@ class ProjectFullDetails(APIView):
             list_of_brick_objects.append(object_details)
         current_price = list_of_brick_objects[0][3].replace('تومان','')
         current_price = current_price.replace(',','')
+        
+        
             
         data = {
             'quantity of brick for one floor':{
                 'north wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor,
                 'south wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor,
                 'west wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor,
-                'east wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor
+                'east wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor,
+                'ceiling of one floor':quantity_of_brick_for_ceiling_in_one_floor
             },
             'quantity of brick for all floors':{
                 'north wall of the entire building':quantity_of_brick_in_north_and_south_wall_for_all_floors,
                 'south wall of the entire building':quantity_of_brick_in_north_and_south_wall_for_all_floors,
                 'west wall of the entire building':quantity_of_brick_in_west_and_east_wall_for_all_floors,
                 'east wall of the entire building':quantity_of_brick_in_west_and_east_wall_for_all_floors,
+                'ceiling of entire building':quantity_of_brick_for_ceiling_in_all_floors
             },
             'types of brick':list_of_brick_objects,
             'default of calculate':list_of_brick_objects[0],
@@ -73,13 +81,15 @@ class ProjectFullDetails(APIView):
                     'north wall':float(quantity_of_brick_in_north_and_south_wall_for_one_floor)*float(current_price),
                     'south wall':float(quantity_of_brick_in_north_and_south_wall_for_one_floor)*float(current_price),
                     'west wall':float(quantity_of_brick_in_west_and_east_wall_for_one_floor)*float(current_price),
-                    'east wall':float(quantity_of_brick_in_west_and_east_wall_for_one_floor)*float(current_price)
+                    'east wall':float(quantity_of_brick_in_west_and_east_wall_for_one_floor)*float(current_price),
+                    'ceiling':float(quantity_of_brick_for_ceiling_in_one_floor)*float(current_price)
                 },
                 'for all floors':{
                     'north wall':float(quantity_of_brick_in_north_and_south_wall_for_all_floors)*float(current_price),
                     'south wall':float(quantity_of_brick_in_north_and_south_wall_for_all_floors)*float(current_price),
                     'west wall':float(quantity_of_brick_in_west_and_east_wall_for_all_floors)*float(current_price),
-                    'east wall':float(quantity_of_brick_in_west_and_east_wall_for_all_floors)*float(current_price) 
+                    'east wall':float(quantity_of_brick_in_west_and_east_wall_for_all_floors)*float(current_price),
+                    'ceiling':float(quantity_of_brick_for_ceiling_in_all_floors)*float(current_price)
                 }
             }
         }
@@ -89,13 +99,17 @@ class ProjectFullDetails(APIView):
     def get(self, request, pk):
         project = self.get_object(pk)
         serializer = ProjectInputsSerializer(project)
-        data = {
-            "project details":serializer.data,  
-            "needed material":{
-                'brick':self.calculate(pk=pk)
-            }  
-        }
-        return Response(data,status=status.HTTP_200_OK)
+        project_details = serializer.data
+        for city in city_choises:
+            if city[0] == project_details['city']:
+                project_details['city']=city[1]
+                data = {
+                    "project details":project_details,  
+                    "needed material":{
+                        'brick':self.calculate(pk=pk)
+                    }  
+                }
+                return Response(data,status=status.HTTP_200_OK)
     
     def put(self, request, pk):
         project = self.get_object(pk)
