@@ -1,17 +1,16 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
+from .city_choice_options import city_choises
 
 class ProjectInputs(models.Model):
 
     build_quality_choices = (
-    (0, 'استاندارد'),
-    (1, 'خوب'),
-    (2, 'عالی'),
+        (0, 'استاندارد'),
+        (1, 'خوب'),
+        (2, 'عالی'),
     )
-    city_choices = (
-        # انتخاب‌های مرتبط با شهرها...
-    )
+    
     lobby_choices = (
         (True, 'دارد'),
         (False, 'ندارد'),
@@ -24,11 +23,12 @@ class ProjectInputs(models.Model):
         (0, 'تیرچه بتنی'),
         (1, 'تیرچه فولادی'),
     )
+    
     created = models.DateTimeField(auto_now=True,null=False,blank=False)
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     title = models.CharField(max_length=30,null=False,blank=False)
     build_quality = models.PositiveSmallIntegerField(choices=build_quality_choices,null=False,blank=False)
-    city = models.PositiveSmallIntegerField(null=False,blank=False)
+    city = models.PositiveSmallIntegerField(choices=city_choises,null=False,blank=False)
     area = models.PositiveSmallIntegerField(null=False,blank=False)
     width = models.PositiveSmallIntegerField(null=False,blank=False)
     length = models.PositiveSmallIntegerField(null=False,blank=False)
