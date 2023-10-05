@@ -8,46 +8,21 @@ from rest_framework import permissions
 from price.models import Material
 from .city_choice_options import city_choises
 
-class CreateNewProject(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    def post(self, request):
-        serializer = ProjectInputsSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            data = {
-            "project details":serializer.data
-            }
-            return Response(data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-class ProjectFullDetails(APIView):
-    permission_classes = [permissions.IsAuthenticated]
-    def get_object(self, pk):
-        try:
-            return ProjectInputs.objects.get(pk=pk)
-        except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        
-    def calculate(self,pk):
-        
+class Calculate:
+    def calculate_brick(self,pk):
         obj = self.get_object(pk=pk)
         home_length = obj.length
         home_width = obj.width
         home_height = 2.8
-        
         brick_length = 20
         brick_width = 10
         brick_height = 5
-        
         quantity_of_brick_in_north_and_south_wall_for_one_floor = ((home_length*100)/brick_length)*((home_height*100)/brick_height)
         quantity_of_brick_in_west_and_east_wall_for_one_floor = ((home_width*100)/brick_length)*((home_height*100)/brick_height)
-        
         quantity_of_brick_in_north_and_south_wall_for_all_floors = quantity_of_brick_in_north_and_south_wall_for_one_floor*obj.floor
         quantity_of_brick_in_west_and_east_wall_for_all_floors = quantity_of_brick_in_west_and_east_wall_for_one_floor*obj.floor
-        
         quantity_of_brick_for_ceiling_in_one_floor = ((home_length*100)/brick_length)*((home_width*100)/brick_length)
         quantity_of_brick_for_ceiling_in_all_floors = quantity_of_brick_for_ceiling_in_one_floor*obj.floor
-        
         all_brick_objects = Material.objects.none()
         all_brick_objects |= Material.objects.filter(name__icontains='آجر')
         list_of_brick_objects = []
@@ -55,10 +30,7 @@ class ProjectFullDetails(APIView):
             object_details = (brick.name,brick.brand,brick.unit,brick.price,brick.last_price)
             list_of_brick_objects.append(object_details)
         current_price = list_of_brick_objects[0][3].replace('تومان','')
-        current_price = current_price.replace(',','')
-        
-        
-            
+        current_price = current_price.replace(',','')    
         data = {
             'quantity of brick for one floor':{
                 'north wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor,
@@ -93,8 +65,40 @@ class ProjectFullDetails(APIView):
                 }
             }
         }
-        
         return data
+
+class CreateNewProject(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get_object(self, pk):
+        try:
+            return ProjectInputs.objects.get(pk=pk)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+    def post(self, request):
+        serializer = ProjectInputsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            project_details = serializer.data
+            for city in city_choises:
+                if city[0] == project_details['city']:
+                    project_details['city']=city[1]
+            data = {
+                "project details":project_details,
+                "needed material":{
+                    'brick':Calculate.calculate_brick(self,pk=project_details['id'])
+                }  
+            }
+            return Response(data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+class ProjectFullDetails(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get_object(self, pk):
+        try:
+            return ProjectInputs.objects.get(pk=pk)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         
     def get(self, request, pk):
         project = self.get_object(pk)
@@ -106,7 +110,7 @@ class ProjectFullDetails(APIView):
                 data = {
                     "project details":project_details,  
                     "needed material":{
-                        'brick':self.calculate(pk=pk)
+                        'brick':Calculate.calculate_brick(self,pk=pk)
                     }  
                 }
                 return Response(data,status=status.HTTP_200_OK)
@@ -116,7 +120,10 @@ class ProjectFullDetails(APIView):
         serializer = ProjectInputsSerializer(project, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data,status=status.HTTP_200_OK)
+            data = {
+                "project details":serializer.data
+            }
+            return Response(data,status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
@@ -130,6 +137,9 @@ class ProjectReview(APIView):
         try:
             project = ProjectInputs.objects.get(pk=pk)
             serializer = ProjectReviewSerializer(project)
-            return Response(serializer.data,status=status.HTTP_200_OK)
+            data = {
+                "project details":serializer.data
+            }
+            return Response(data,status=status.HTTP_200_OK)
         except:
             return Response(status=status.HTTP_404_NOT_FOUND) 
