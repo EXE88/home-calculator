@@ -33,35 +33,71 @@ class Calculate:
         current_price = current_price.replace(',','')    
         data = {
             'quantity of brick for one floor':{
-                'north wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor,
-                'south wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor,
-                'west wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor,
-                'east wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor,
-                'ceiling of one floor':quantity_of_brick_for_ceiling_in_one_floor
+                'one Layer':{
+                    'north wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor,
+                    'south wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor,
+                    'west wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor,
+                    'east wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor,
+                    'ceiling of one floor':quantity_of_brick_for_ceiling_in_one_floor
+                },
+                'two Layer':{
+                    'north wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor*2,
+                    'south wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor*2,
+                    'west wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor*2,
+                    'east wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor*2,
+                    'ceiling of one floor':quantity_of_brick_for_ceiling_in_one_floor  
+                }
             },
             'quantity of brick for all floors':{
-                'north wall of the entire building':quantity_of_brick_in_north_and_south_wall_for_all_floors,
-                'south wall of the entire building':quantity_of_brick_in_north_and_south_wall_for_all_floors,
-                'west wall of the entire building':quantity_of_brick_in_west_and_east_wall_for_all_floors,
-                'east wall of the entire building':quantity_of_brick_in_west_and_east_wall_for_all_floors,
-                'ceiling of entire building':quantity_of_brick_for_ceiling_in_all_floors
+                'one layer':{
+                    'north wall of the entire building':quantity_of_brick_in_north_and_south_wall_for_all_floors,
+                    'south wall of the entire building':quantity_of_brick_in_north_and_south_wall_for_all_floors,
+                    'west wall of the entire building':quantity_of_brick_in_west_and_east_wall_for_all_floors,
+                    'east wall of the entire building':quantity_of_brick_in_west_and_east_wall_for_all_floors,
+                    'ceiling of entire building':quantity_of_brick_for_ceiling_in_all_floors
+                },
+                'two layer':{
+                    'north wall of the entire building':quantity_of_brick_in_north_and_south_wall_for_all_floors*2,
+                    'south wall of the entire building':quantity_of_brick_in_north_and_south_wall_for_all_floors*2,
+                    'west wall of the entire building':quantity_of_brick_in_west_and_east_wall_for_all_floors*2,
+                    'east wall of the entire building':quantity_of_brick_in_west_and_east_wall_for_all_floors*2,
+                    'ceiling of entire building':quantity_of_brick_for_ceiling_in_all_floors  
+                }
             },
             'types of brick':list_of_brick_objects,
             'default of calculate':list_of_brick_objects[0],
             'costs':{
                 'for one floor':{
-                    'north wall':float(quantity_of_brick_in_north_and_south_wall_for_one_floor)*float(current_price),
-                    'south wall':float(quantity_of_brick_in_north_and_south_wall_for_one_floor)*float(current_price),
-                    'west wall':float(quantity_of_brick_in_west_and_east_wall_for_one_floor)*float(current_price),
-                    'east wall':float(quantity_of_brick_in_west_and_east_wall_for_one_floor)*float(current_price),
-                    'ceiling':float(quantity_of_brick_for_ceiling_in_one_floor)*float(current_price)
+                    'one layer':{
+                        'north wall':float(quantity_of_brick_in_north_and_south_wall_for_one_floor)*float(current_price),
+                        'south wall':float(quantity_of_brick_in_north_and_south_wall_for_one_floor)*float(current_price),
+                        'west wall':float(quantity_of_brick_in_west_and_east_wall_for_one_floor)*float(current_price),
+                        'east wall':float(quantity_of_brick_in_west_and_east_wall_for_one_floor)*float(current_price),
+                        'ceiling':float(quantity_of_brick_for_ceiling_in_one_floor)*float(current_price)
+                    },
+                    'two layer':{
+                        'north wall':(float(quantity_of_brick_in_north_and_south_wall_for_one_floor)*float(current_price))*2,
+                        'south wall':(float(quantity_of_brick_in_north_and_south_wall_for_one_floor)*float(current_price))*2,
+                        'west wall':(float(quantity_of_brick_in_west_and_east_wall_for_one_floor)*float(current_price))*2,
+                        'east wall':(float(quantity_of_brick_in_west_and_east_wall_for_one_floor)*float(current_price))*2,
+                        'ceiling':float(quantity_of_brick_for_ceiling_in_one_floor)*float(current_price) 
+                    }
                 },
                 'for all floors':{
-                    'north wall':float(quantity_of_brick_in_north_and_south_wall_for_all_floors)*float(current_price),
-                    'south wall':float(quantity_of_brick_in_north_and_south_wall_for_all_floors)*float(current_price),
-                    'west wall':float(quantity_of_brick_in_west_and_east_wall_for_all_floors)*float(current_price),
-                    'east wall':float(quantity_of_brick_in_west_and_east_wall_for_all_floors)*float(current_price),
-                    'ceiling':float(quantity_of_brick_for_ceiling_in_all_floors)*float(current_price)
+                    'one layer':{
+                        'north wall':float(quantity_of_brick_in_north_and_south_wall_for_all_floors)*float(current_price),
+                        'south wall':float(quantity_of_brick_in_north_and_south_wall_for_all_floors)*float(current_price),
+                        'west wall':float(quantity_of_brick_in_west_and_east_wall_for_all_floors)*float(current_price),
+                        'east wall':float(quantity_of_brick_in_west_and_east_wall_for_all_floors)*float(current_price),
+                        'ceiling':float(quantity_of_brick_for_ceiling_in_all_floors)*float(current_price)
+                    },
+                    'two layer':{
+                        'north wall':(float(quantity_of_brick_in_north_and_south_wall_for_all_floors)*float(current_price))*2,
+                        'south wall':(float(quantity_of_brick_in_north_and_south_wall_for_all_floors)*float(current_price))*2,
+                        'west wall':(float(quantity_of_brick_in_west_and_east_wall_for_all_floors)*float(current_price))*2,
+                        'east wall':(float(quantity_of_brick_in_west_and_east_wall_for_all_floors)*float(current_price))*2,
+                        'ceiling':float(quantity_of_brick_for_ceiling_in_all_floors)*float(current_price)
+                    }
                 }
             }
         }
