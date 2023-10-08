@@ -33,14 +33,14 @@ class Calculate:
         current_price = current_price.replace(',','')    
         data = {
             'quantity of brick for one floor':{
-                'one Layer':{
+                'one layer':{
                     'north wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor,
                     'south wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor,
                     'west wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor,
                     'east wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor,
                     'ceiling of one floor':quantity_of_brick_for_ceiling_in_one_floor
                 },
-                'two Layer':{
+                'two layer':{
                     'north wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor*2,
                     'south wall of one floor':quantity_of_brick_in_north_and_south_wall_for_one_floor*2,
                     'west wall of one floor':quantity_of_brick_in_west_and_east_wall_for_one_floor*2,
@@ -102,6 +102,49 @@ class Calculate:
             }
         }
         return data
+    def calculate_cement(self,pk,data):
+        cement_standard_size = 0.05
+        data = data['needed material']['brick']
+        one_floor_all_walls = data['quantity of brick for one floor']['one layer']
+        north_wall_one_floor = data['quantity of brick for one floor']['one layer']['north wall of one floor']
+        south_wall_one_floor = data['quantity of brick for one floor']['one layer']['south wall of one floor']
+        west_wall_one_floor = data['quantity of brick for one floor']['one layer']['west wall of one floor']
+        east_wall_one_floor = data['quantity of brick for one floor']['one layer']['east wall of one floor']
+        ceiling_one_floor = data['quantity of brick for one floor']['one layer']['ceiling of one floor']
+        data = {
+            'cement':{
+                'one floor':{
+                    'one layer':{
+                        'all':{
+                            'north wall need cement (kg)':(north_wall_one_floor*cement_standard_size),
+                            'south wall need cement (kg)':(south_wall_one_floor*cement_standard_size),
+                            'west wall need cement (kg)':(west_wall_one_floor*cement_standard_size),
+                            'east wall need cement (kg)':(east_wall_one_floor*cement_standard_size),
+                            'ceiling need cement (kg)':(ceiling_one_floor*cement_standard_size),
+                        },
+                        'total':{
+                            'total cement need (kg)':(one_floor_all_walls*cement_standard_size)
+                        }
+                    },
+                    'two layer':{
+                        'all':{
+                            'north wall need cement (kg)':(north_wall_one_floor*cement_standard_size)*2,
+                            'south wall need cement (kg)':(south_wall_one_floor*cement_standard_size)*2,
+                            'west wall need cement (kg)':(west_wall_one_floor*cement_standard_size)*2,
+                            'east wall need cement (kg)':(east_wall_one_floor*cement_standard_size)*2,
+                            'ceiling need cement (kg)':(ceiling_one_floor*cement_standard_size),
+                        },
+                        'total':{
+                            'total cement need (kg)':(one_floor_all_walls*cement_standard_size)*2
+                        } 
+                    }
+                },
+                'all floors':{
+                    
+                }
+            }
+        }
+        
 
 class CreateNewProject(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -149,6 +192,7 @@ class ProjectFullDetails(APIView):
                         'brick':Calculate.calculate_brick(self,pk=pk)
                     }  
                 }
+                Calculate.calculate_cement(self,pk=pk,data=data)
                 return Response(data,status=status.HTTP_200_OK)
     
     def put(self, request, pk):
