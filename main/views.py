@@ -119,6 +119,7 @@ class Calculate:
         east_wall_one_floor = data['quantity of brick for one floor']['one layer']['east wall of one floor']
         ceiling_one_floor = data['quantity of brick for one floor']['one layer']['ceiling of one floor']
         one_floor_all_walls = north_wall_one_floor+south_wall_one_floor+west_wall_one_floor+east_wall_one_floor+ceiling_one_floor
+        
         all_cement_objects = Material.objects.filter(name__icontains='سیمان')
         defult_calculate_object = Material.objects.filter(name__icontains='سیمان پرتلند تیپ 2')
         list_of_objects = []
@@ -245,6 +246,147 @@ class Calculate:
             }
         }
         return data
+    
+    def calculate_sand(self,pk,data):
+        north_wall_one_floor = data['quantity of brick for one floor']['one layer']['north wall of one floor']
+        south_wall_one_floor = data['quantity of brick for one floor']['one layer']['south wall of one floor']
+        west_wall_one_floor = data['quantity of brick for one floor']['one layer']['west wall of one floor']
+        east_wall_one_floor = data['quantity of brick for one floor']['one layer']['east wall of one floor']
+        ceiling_one_floor = data['quantity of brick for one floor']['one layer']['ceiling of one floor']
+        all_walls_one_floor = north_wall_one_floor+south_wall_one_floor+west_wall_one_floor+east_wall_one_floor
+        sand_standard_size = 0.02
+        brick_area = 0.2*0.1
+        sand_standard_size_times_to_brick_area = sand_standard_size*brick_area
+        obj = self.get_object(pk=pk)
+        floors = obj.floor
+        
+        all_sand_objects = Material.objects.filter(name__icontains='ماسه')
+        defult_calculate_object = Material.objects.filter(name__icontains='ماسه شسته')
+        list_of_objects = []
+        list_of_defult_calculate_object = []
+        
+        for object in all_sand_objects:
+            object_detials = (object.name,object.brand,object.unit,object.price,object.last_price)
+            list_of_objects.append(object_detials)
+        for object in defult_calculate_object:
+            object_detials = (object.name,object.brand,object.unit,object.price,object.last_price)
+            list_of_defult_calculate_object.append(object_detials)
+            
+        current_price = list_of_objects[0][3].replace('تومان','')
+        current_price = current_price.replace(',','')   
+        
+        data = {
+            'one floor':{
+                'one layer':{
+                    'all':{
+                        'north wall needed sand (mc)':north_wall_one_floor*sand_standard_size_times_to_brick_area,
+                        'south wall needed sand (mc)':south_wall_one_floor*sand_standard_size_times_to_brick_area,
+                        'west wall needed sand (mc)':west_wall_one_floor*sand_standard_size_times_to_brick_area,
+                        'east wall needed sand (mc)':east_wall_one_floor*sand_standard_size_times_to_brick_area,
+                        'ceiling needed sand (mc)':ceiling_one_floor*sand_standard_size_times_to_brick_area,
+                    },
+                    'total':{
+                        'total need sand (mc)':(all_walls_one_floor+ceiling_one_floor)*sand_standard_size_times_to_brick_area
+                    }
+                },
+                'two layer':{
+                    'all':{
+                        'north wall needed sand (mc)':(north_wall_one_floor*sand_standard_size_times_to_brick_area)*2,
+                        'south wall needed sand (mc)':(south_wall_one_floor*sand_standard_size_times_to_brick_area)*2,
+                        'west wall needed sand (mc)':(west_wall_one_floor*sand_standard_size_times_to_brick_area)*2,
+                        'east wall needed sand (mc)':(east_wall_one_floor*sand_standard_size_times_to_brick_area)*2,
+                        'ceiling needed sand (mc)':(ceiling_one_floor*sand_standard_size_times_to_brick_area),
+                    },
+                    'total':{
+                        'total need sand (mc)':((((all_walls_one_floor)*2)+ceiling_one_floor)*sand_standard_size_times_to_brick_area)
+                    }
+                }
+            },
+            'all floor':{
+                'one layer':{
+                    'all':{
+                        'north wall needed sand (mc)':(north_wall_one_floor*sand_standard_size_times_to_brick_area)*floors,
+                        'south wall needed sand (mc)':(south_wall_one_floor*sand_standard_size_times_to_brick_area)*floors,
+                        'west wall needed sand (mc)':(west_wall_one_floor*sand_standard_size_times_to_brick_area)*floors,
+                        'east wall needed sand (mc)':(east_wall_one_floor*sand_standard_size_times_to_brick_area)*floors,
+                        'ceiling needed sand (mc)':(ceiling_one_floor*sand_standard_size_times_to_brick_area)*floors,
+                    },
+                    'total':{
+                        'total need sand (mc)':((all_walls_one_floor+ceiling_one_floor)*sand_standard_size_times_to_brick_area)*floors
+                    }
+                },
+                'two layer':{
+                    'all':{
+                        'north wall needed sand (mc)':((north_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*floors,
+                        'south wall needed sand (mc)':((south_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*floors,
+                        'west wall needed sand (mc)':((west_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*floors,
+                        'east wall needed sand (mc)':((east_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*floors,
+                        'ceiling needed sand (mc)':(ceiling_one_floor*sand_standard_size_times_to_brick_area)*floors,
+                    },
+                    'total':{
+                        'total need sand (mc)':(((((all_walls_one_floor)*2)+ceiling_one_floor)*sand_standard_size_times_to_brick_area))*floors
+                    }
+                }
+            },
+            'types of sand':list_of_objects,
+            'defult sand for calcualte':list_of_defult_calculate_object,
+            'costs':{
+                'for one floor':{
+                    'one layer':{
+                        'all':{
+                            'north wall (تومان)':float(north_wall_one_floor*sand_standard_size_times_to_brick_area)*float(current_price),
+                            'south wall (تومان)':float(south_wall_one_floor*sand_standard_size_times_to_brick_area)*float(current_price),
+                            'west wall (تومان)':float(west_wall_one_floor*sand_standard_size_times_to_brick_area)*float(current_price),
+                            'east wall (تومان)':float(east_wall_one_floor*sand_standard_size_times_to_brick_area)*float(current_price),
+                            'ceiling (تومان)':float(ceiling_one_floor*sand_standard_size_times_to_brick_area)*float(current_price),
+                        },
+                        'total':{
+                            'total (تومان)':float((all_walls_one_floor+ceiling_one_floor)*sand_standard_size_times_to_brick_area)*float(current_price)
+                        }
+                    },
+                    'two layer':{
+                        'all':{
+                            'north wall (تومان)':float((north_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*float(current_price),
+                            'south wall (تومان)':((south_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*float(current_price),
+                            'west wall (تومان)':((west_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*float(current_price),
+                            'east wall (تومان)':((east_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*float(current_price),
+                            'ceiling (تومان)':float(ceiling_one_floor*sand_standard_size_times_to_brick_area)*float(current_price),
+                        },
+                        'total':{
+                            'total (تومان)':float(((((all_walls_one_floor)*2)+ceiling_one_floor)*sand_standard_size_times_to_brick_area))*float(current_price)
+                        }
+                    }
+                },
+                'for all floor':{
+                    'one layer':{
+                        'all':{
+                            'north wall (تومان)':float((north_wall_one_floor*sand_standard_size_times_to_brick_area)*floors)*float(current_price),
+                            'south wall (تومان)':float((south_wall_one_floor*sand_standard_size_times_to_brick_area)*floors)*float(current_price),
+                            'west wall (تومان)':float((west_wall_one_floor*sand_standard_size_times_to_brick_area)*floors)*float(current_price),
+                            'east wall (تومان)':float((east_wall_one_floor*sand_standard_size_times_to_brick_area)*floors)*float(current_price),
+                            'ceiling (تومان)':float((ceiling_one_floor*sand_standard_size_times_to_brick_area)*floors)*float(current_price),
+                        },
+                        'total':{
+                            'total (تومان)':float(((all_walls_one_floor+ceiling_one_floor)*sand_standard_size_times_to_brick_area)*floors)*float(current_price)
+                        }
+                    },
+                    'two layer':{
+                        'all':{
+                            'north wall (تومان)':float(((north_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*floors)*float(current_price),
+                            'south wall (تومان)':float(((south_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*floors)*float(current_price),
+                            'west wall (تومان)':float(((west_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*floors)*float(current_price),
+                            'east wall (تومان)':float(((east_wall_one_floor*sand_standard_size_times_to_brick_area)*2)*floors)*float(current_price),
+                            'ceiling (تومان)':float((ceiling_one_floor*sand_standard_size_times_to_brick_area)*floors)*float(current_price),
+                        },
+                        'total':{
+                            'total need sand (mc)':float((((((all_walls_one_floor)*2)+ceiling_one_floor)*sand_standard_size_times_to_brick_area))*floors)*float(current_price)
+                        }
+                    }
+                }
+            }
+        }
+        return data
+        
         
 
 class CreateNewProject(APIView):
@@ -291,7 +433,8 @@ class ProjectFullDetails(APIView):
                     "project details":project_details,  
                     "needed material":{
                         'brick':Calculate.calculate_brick(self,pk=pk),
-                        'cement':Calculate.calculate_cement(self,pk=pk,data=Calculate.calculate_brick(self,pk=pk))
+                        'cement':Calculate.calculate_cement(self,pk=pk,data=Calculate.calculate_brick(self,pk=pk)),
+                        'sand':Calculate.calculate_sand(self,pk=pk,data=Calculate.calculate_brick(self,pk=pk))
                     }  
                 }
                 return Response(data,status=status.HTTP_200_OK)
