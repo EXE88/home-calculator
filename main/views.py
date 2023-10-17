@@ -405,13 +405,15 @@ class CreateNewProject(APIView):
             for city in city_choises:
                 if city[0] == project_details['city']:
                     project_details['city']=city[1]
-            data = {
-                "project details":project_details,
-                "needed material":{
-                    'brick':Calculate.calculate_brick(self,pk=project_details['id'])
-                }  
-            }
-            return Response(data, status=status.HTTP_201_CREATED)
+                    data = {
+                        "project details":project_details,  
+                        "needed material":{
+                            'brick':Calculate.calculate_brick(self,pk=project_details['id']),
+                            'cement':Calculate.calculate_cement(self,pk=project_details['id'],data=Calculate.calculate_brick(self,pk=project_details['id'])),
+                            'sand':Calculate.calculate_sand(self,pk=project_details['id'],data=Calculate.calculate_brick(self,pk=project_details['id']))
+                        }  
+                    }
+                    return Response(data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 class ProjectFullDetails(APIView):
@@ -444,10 +446,19 @@ class ProjectFullDetails(APIView):
         serializer = ProjectInputsSerializer(project, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            data = {
-                "project details":serializer.data
-            }
-            return Response(data,status=status.HTTP_200_OK)
+            project_details = serializer.data
+            for city in city_choises:
+                if city[0] == project_details['city']:
+                    project_details['city']=city[1]
+                    data = {
+                        "project details":project_details,  
+                        "needed material":{
+                            'brick':Calculate.calculate_brick(self,pk=pk),
+                            'cement':Calculate.calculate_cement(self,pk=pk,data=Calculate.calculate_brick(self,pk=pk)),
+                            'sand':Calculate.calculate_sand(self,pk=pk,data=Calculate.calculate_brick(self,pk=pk))
+                        }  
+                    }
+                    return Response(data,status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
