@@ -2,9 +2,11 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import UserLoginSerializers,UserLoginValidateSerializer,UserRegisterSerializers,UserRegisterValidatePasswordSerializers
 
-class UserLoginView(APIView):
+class UserLoginView(TokenObtainPairView):
     def post(self,request):
         login_serializer = UserLoginSerializers(data=request.data,context={"request":request})
         validate_login_serializer = UserLoginValidateSerializer(data=request.data,context={"request":request})
@@ -18,6 +20,7 @@ class UserLoginView(APIView):
             return Response(validate_login_serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class UserRegisterView(APIView):
+    permission_classes = [AllowAny]
     def post(self,request):
         register_serializer = UserRegisterSerializers(data=request.data)
         validate_register_serializer = UserRegisterValidatePasswordSerializers(data=request.data,context={"request":request})
