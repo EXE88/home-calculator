@@ -51,3 +51,43 @@ class UpdatePrices(APIView):
                 brand=brand,
                 defaults={'unit':unit,'price':price,'description':description,'last_price':last_price}
             )
+            
+class CurrentPrice(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self,request):
+        data = {
+            "تجهیزات پایدارسازی گود":[],
+            "لوازم و تجهیزات اجرایی":[],
+            "مصالح پایه":[],
+            "فلزات":[],
+            "لوازم و تجهیزات اجرای سقف":[],
+            "شیمی ساختمان":[],
+            "عایق":[],
+            "لوازم و تجهیزات الکتریکی":[],
+            "لوازم و تجهیزات مکانیکی":[],
+            "دیوارپوش":[],
+            "کفپوش":[],
+            "سرویس بهداشتی و شیرآلات":[],
+            "درب و پنجره و یراق آلات":[],
+            "تجهیزات آشپزخانه":[],
+            "مصالح و تجهیزات محوطه و روف گاردن":[],
+            "تزئینات داخلی":[],
+            "هوشمند سازی":[],
+            "استخر و جکوزی و سونا":[],
+            "اسانسور و تجهیزات":[],
+            "تجهیزات فنی و مهندسی":[],
+            "قطعات پیش ساخته":[],
+            "سنگ،سرامیک،کاشی":[]
+        }
+        for key in data.keys():
+            for object in Material.objects.filter(group=key):
+                data[key].append({
+                                'name': object.name,
+                                'group': object.group,
+                                'brand': object.brand,
+                                'unit': object.unit,
+                                'price': object.price,
+                                'description': object.description,
+                                'last price': object.last_price
+                                })
+        return Response(data, status.HTTP_200_OK)
